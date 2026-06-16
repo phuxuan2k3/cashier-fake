@@ -218,6 +218,21 @@
       },
       "id": "phone_topup_mobifone_tui_fee",
       "name": "Phí nạp thẻ Mobifone (nguồn tiền Túi)"
+    },
+    {
+      "conditions": {
+        "amountRange": null,
+        "orderTypes": null,
+        "paymentMethods": null
+      },
+      "enabled": false,
+      "fee": {
+        "displayLabel": "Không áp dụng phí (yêu cầu xóa rule)",
+        "type": "flat",
+        "value": 0
+      },
+      "id": "placeholder_not_applicable",
+      "name": "Yêu cầu xóa rule - cần xử lý thủ công"
     }
   ],
   "version": "1.0"
