@@ -218,6 +218,23 @@
       },
       "id": "phone_topup_mobifone_tui_fee",
       "name": "Phí nạp thẻ Mobifone (nguồn tiền Túi)"
+    },
+    {
+      "conditions": {
+        "amountRange": null,
+        "orderTypes": [
+          "phone_topup_mobifone"
+        ],
+        "paymentMethods": null
+      },
+      "enabled": true,
+      "fee": {
+        "displayLabel": "Miễn phí nạp thẻ Mobiphone",
+        "type": "flat",
+        "value": 0
+      },
+      "id": "phone_topup_mobifone_service_fee",
+      "name": "Phí dịch vụ nạp thẻ Mobiphone"
     }
   ],
   "version": "1.0"
