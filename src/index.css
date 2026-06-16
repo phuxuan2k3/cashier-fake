@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,6 +9,7 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     @apply bg-slate-100 min-h-screen;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   #root {
     @apply min-h-screen;
@@ -19,5 +20,121 @@
   .amount-text {
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.03em;
+  }
+
+  /* Rounded, friendly display font for headings */
+  .font-cute {
+    font-family: 'Baloo 2', 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Hide scrollbar (used by the category tab row) */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Torn-receipt sawtooth bottom edge */
+  .receipt-edge {
+    --tooth: 16px;
+    -webkit-mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg)
+      bottom / var(--tooth) var(--tooth) repeat-x,
+      linear-gradient(#000 0 0) top / 100% calc(100% - var(--tooth)) no-repeat;
+            mask:
+      conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg)
+      bottom / var(--tooth) var(--tooth) repeat-x,
+      linear-gradient(#000 0 0) top / 100% calc(100% - var(--tooth)) no-repeat;
+  }
+}
+
+/* ——— Cute micro-animations ——— */
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.82) translateY(10px); }
+  60%  { transform: scale(1.03) translateY(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes fade-up {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-6deg); }
+  50%      { transform: rotate(6deg); }
+}
+@keyframes spin-smooth { to { transform: rotate(360deg); } }
+@keyframes ring-pulse {
+  0%   { transform: scale(0.75); opacity: 0.55; }
+  100% { transform: scale(1.9); opacity: 0; }
+}
+@keyframes draw-check {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes pop-bounce {
+  0%   { transform: scale(0); }
+  55%  { transform: scale(1.18); }
+  75%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50%      { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@layer utilities {
+  .animate-pop-in   { animation: pop-in 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) both; }
+  .animate-fade-up  { animation: fade-up 0.45s ease-out both; }
+  .animate-float    { animation: float 3s ease-in-out infinite; }
+  .animate-wiggle   { animation: wiggle 1.4s ease-in-out infinite; }
+  .animate-ring-pulse { animation: ring-pulse 1.7s ease-out infinite; }
+  .animate-pop-bounce { animation: pop-bounce 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) both; }
+  .animate-sparkle  { animation: sparkle 1.6s ease-in-out infinite; }
+  .spinner-ring     { animation: spin-smooth 0.85s linear infinite; }
+
+  .delay-100 { animation-delay: 0.10s; }
+  .delay-150 { animation-delay: 0.15s; }
+  .delay-200 { animation-delay: 0.20s; }
+  .delay-300 { animation-delay: 0.30s; }
+  .delay-500 { animation-delay: 0.50s; }
+
+  .draw-check {
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    animation: draw-check 0.5s ease-out 0.25s forwards;
+  }
+
+  .shimmer-text {
+    background: linear-gradient(90deg, currentColor 25%, rgba(255,255,255,0.85) 50%, currentColor 75%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2s linear infinite;
+  }
+}
+
+/* ——— Smooth screen-to-screen transitions (View Transitions API) ——— */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.32s;
+  animation-timing-function: ease;
+}
+/* The amount slides/scales from its old spot to the new one */
+::view-transition-group(vt-amount) {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

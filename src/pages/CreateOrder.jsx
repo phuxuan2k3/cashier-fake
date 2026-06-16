@@ -47,20 +47,20 @@ export default function CreateOrder() {
 
         {/* Header */}
         <div className="px-5 pt-12 pb-6">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-9 h-9 rounded-xl bg-primary-600 flex items-center justify-center text-white text-lg shadow-sm">
+          <div className="flex items-center gap-3 mb-1 animate-fade-up">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-lg shadow-md shadow-primary-200 animate-wiggle">
               💜
             </div>
             <span className="text-xs font-semibold text-primary-600 tracking-widest uppercase">Cashier</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 mt-4">Tạo đơn hàng</h1>
-          <p className="text-sm text-slate-400 mt-1">Chọn dịch vụ và điền thông tin</p>
+          <h1 className="text-[28px] font-extrabold text-slate-800 mt-4 font-cute animate-fade-up delay-100">Tạo đơn hàng</h1>
+          <p className="text-sm text-slate-400 mt-1 animate-fade-up delay-150">Chọn dịch vụ và điền thông tin nhé ✨</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col px-4 gap-5 pb-8">
 
           {/* Service Type */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-3xl p-4 shadow-sm shadow-slate-200/60 border border-slate-100 animate-fade-up delay-150">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Loại dịch vụ</p>
 
             {/* Category tabs */}
@@ -114,7 +114,7 @@ export default function CreateOrder() {
           </div>
 
           {/* Recipient Info */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-3xl p-4 shadow-sm shadow-slate-200/60 border border-slate-100 animate-fade-up delay-200">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
               {selectedOrderType.recipientLabel}
             </label>
@@ -131,7 +131,7 @@ export default function CreateOrder() {
           </div>
 
           {/* Amount */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+          <div className="bg-white rounded-3xl p-4 shadow-sm shadow-slate-200/60 border border-slate-100 animate-fade-up delay-300">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">
               Số tiền
             </label>

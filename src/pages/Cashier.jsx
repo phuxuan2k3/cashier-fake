@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { flushSync } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { PAYMENT_METHODS } from '../data/paymentMethods'
 import { calculateFees, formatVND } from '../utils/feeCalculator'
@@ -10,10 +11,20 @@ export default function Cashier() {
   const state = location.state
 
   const [showDetail, setShowDetail] = useState(false)
-  const [showFeeModal, setShowFeeModal] = useState(false)
+  const [showFeeTooltip, setShowFeeTooltip] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [selectedPayment, setSelectedPayment] = useState(PAYMENT_METHODS[0])
   const [showAllPayments, setShowAllPayments] = useState(false)
+
+  // Smoothly morph between screens (amount slides to its new spot, page crossfades)
+  const transition = (update) => {
+    if (typeof document !== 'undefined' && document.startViewTransition) {
+      document.startViewTransition(() => flushSync(update))
+    } else {
+      update()
+    }
+  }
 
   useEffect(() => {
     if (!state) navigate('/')
@@ -28,6 +39,114 @@ export default function Cashier() {
   const isInsufficient = selectedPayment.balance < totalAmount && selectedPayment.type !== 'card' && selectedPayment.type !== 'qr'
 
   const displayedPayments = showAllPayments ? PAYMENT_METHODS : PAYMENT_METHODS.slice(0, 4)
+
+  // ——— Processing screen (shown briefly before success) ———
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen bg-[#F5F3FF]">
+        <div className="max-w-[430px] mx-auto min-h-screen flex flex-col">
+
+          {/* Gradient header — identical to confirm/success */}
+          <div className="bg-gradient-to-b from-primary-100 to-[#F5F3FF] px-5 pt-12 pb-6">
+
+            {/* Spinning status icon */}
+            <div className="relative w-14 h-14 mb-6">
+              <span className="absolute inset-0 rounded-full bg-primary-300/40 animate-ring-pulse" />
+              <svg className="relative w-14 h-14 spinner-ring" viewBox="0 0 50 50">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="#ddd6fe" strokeWidth="5" />
+                <circle cx="25" cy="25" r="20" fill="none" stroke="#7c3aed" strokeWidth="5" strokeLinecap="round" strokeDasharray="36 120" />
+              </svg>
+            </div>
+
+            {/* Title */}
+            <h2 className="text-[26px] font-extrabold text-slate-800 font-cute leading-tight">
+              Giao dịch đang xử lý
+            </h2>
+            <p className="text-sm text-slate-400 mt-1.5">
+              {orderType.name} · {recipient}
+            </p>
+
+            {/* Amount — shared element that morphs across screens */}
+            <div className="mt-5 flex items-end gap-1" style={{ viewTransitionName: 'vt-amount' }}>
+              <span className="text-[42px] font-black text-primary-700 leading-none amount-text">
+                {formatVND(totalAmount)}
+              </span>
+              <span className="text-xl font-bold text-primary-400 mb-1">đ</span>
+            </div>
+
+            {/* Chips */}
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <button
+                onClick={() => setShowDetail(v => !v)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary-200 bg-white/60 backdrop-blur text-primary-600 text-xs font-semibold hover:bg-white transition-all"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                Chi tiết đơn hàng
+              </button>
+              {fees.total > 0 ? (
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 text-orange-500 text-xs font-semibold">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  Phí {formatVND(fees.total)}đ
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-100 text-primary-600 text-xs font-semibold">
+                  🎉 Miễn phí
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Content on the same purple background */}
+          <div className="flex-1 px-4 pt-3 pb-10">
+            {showDetail && (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 space-y-2.5 mb-3 animate-fade-up">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">Số tiền gốc</span>
+                  <span className="font-semibold text-slate-700">{formatVND(amount)}đ</span>
+                </div>
+                {fees.items.map(item => (
+                  <div key={item.id} className="flex justify-between text-sm">
+                    <span className="text-slate-400">{item.label}</span>
+                    <span className="font-semibold text-orange-500">+{formatVND(item.amount)}đ</span>
+                  </div>
+                ))}
+                <div className="border-t border-slate-100 pt-2.5 flex justify-between text-sm">
+                  <span className="font-bold text-slate-700">Tổng</span>
+                  <span className="font-bold text-primary-600">{formatVND(totalAmount)}đ</span>
+                </div>
+              </div>
+            )}
+
+            {/* Reassurance card */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-4 py-4 flex items-center gap-3">
+              <span className="flex items-center gap-1.5 flex-shrink-0">
+                <span className="w-2 h-2 rounded-full bg-primary-400 animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-2 h-2 rounded-full bg-primary-400 animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-2 h-2 rounded-full bg-primary-400 animate-bounce" />
+              </span>
+              <p className="text-sm text-slate-500 leading-snug">
+                Đang kết nối tới nhà cung cấp, vui lòng chờ trong giây lát…
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom close button */}
+          <div className="px-4 pb-8">
+            <button
+              onClick={() => navigate('/')}
+              className="w-full py-4 rounded-2xl bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 active:scale-[0.98] transition-all"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (showSuccess) {
     const now = new Date()
@@ -46,17 +165,26 @@ export default function Cashier() {
     const randomOffer = upsellOffers[now.getSeconds() % upsellOffers.length]
 
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-[#F5F3FF]">
         <div className="max-w-[430px] mx-auto min-h-screen flex flex-col">
 
           {/* Top success header with gradient */}
-          <div className="bg-gradient-to-b from-emerald-50 to-white px-5 pt-12 pb-6">
-            <div className="w-16 h-16 rounded-full border-[3px] border-emerald-500 flex items-center justify-center mb-5">
-              <svg className="w-8 h-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
+          <div className="relative bg-gradient-to-b from-primary-100 to-[#F5F3FF] px-5 pt-12 pb-6 overflow-hidden">
+            {/* sparkles */}
+            <span className="absolute left-14 top-10 text-primary-400 text-lg animate-sparkle">✦</span>
+            <span className="absolute left-2 top-24 text-primary-300 text-sm animate-sparkle delay-300">✦</span>
+            <span className="absolute right-10 top-16 text-primary-400 text-base animate-sparkle delay-500">✦</span>
+
+            {/* Animated check badge */}
+            <div className="relative w-16 h-16 mb-5">
+              <span className="absolute inset-0 rounded-full bg-primary-400/30 animate-ring-pulse" />
+              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-200 animate-pop-bounce">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path className="draw-check" strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-3">Giao dịch thành công</h2>
+            <h2 className="text-2xl font-extrabold text-slate-800 mb-3 font-cute animate-fade-up">Giao dịch thành công 🎉</h2>
             <div className="space-y-1">
               <p className="text-sm text-slate-500">
                 Mã giao dịch:{' '}
@@ -71,7 +199,7 @@ export default function Cashier() {
           {/* Main content */}
           <div className="flex-1 px-5 pb-32">
             {/* Large amount */}
-            <div className="flex items-end gap-1 mb-4">
+            <div className="flex items-end gap-1 mb-4" style={{ viewTransitionName: 'vt-amount' }}>
               <span className="text-[46px] font-black text-primary-700 leading-none amount-text">
                 {formatVND(totalAmount)}
               </span>
@@ -209,21 +337,21 @@ export default function Cashier() {
           </button>
 
           {/* Order info header */}
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 animate-fade-up">
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 shadow-sm"
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 shadow-sm animate-float"
               style={{ backgroundColor: orderType.color + '20' }}
             >
               {orderType.icon}
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-800 leading-tight">{orderType.name}</h2>
+              <h2 className="text-base font-bold text-slate-800 leading-tight font-cute">{orderType.name}</h2>
               <p className="text-sm text-slate-400 mt-0.5">{recipient}</p>
             </div>
           </div>
 
           {/* Large amount */}
-          <div className="mt-6 mb-1 flex items-end gap-1">
+          <div className="mt-6 mb-1 flex items-end gap-1" style={{ viewTransitionName: 'vt-amount' }}>
             <span className="text-[42px] font-black text-primary-700 leading-none amount-text">
               {formatVND(totalAmount)}
             </span>
@@ -285,7 +413,7 @@ export default function Cashier() {
           )}
 
           {/* Fee row */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 px-4 py-3 flex items-center justify-between">
+          <div className="relative bg-white rounded-2xl shadow-sm border border-slate-100 px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center">
                 <svg className="w-4 h-4 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -298,13 +426,33 @@ export default function Cashier() {
             </div>
             {fees.items.length > 0 && (
               <button
-                onClick={() => setShowFeeModal(true)}
+                onClick={() => setShowFeeTooltip(v => !v)}
                 className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-slate-200 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </button>
+            )}
+
+            {/* Fee tooltip */}
+            {showFeeTooltip && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowFeeTooltip(false)}
+                />
+                <div className="absolute right-0 bottom-full mb-3 z-50 w-72 bg-[#1b3a8c] text-white rounded-2xl px-4 py-3.5 shadow-2xl">
+                  <p className="text-sm font-semibold leading-snug mb-2">Chi tiết phí</p>
+                  {fees.items.map(item => (
+                    <p key={item.id} className="text-sm leading-relaxed">
+                      {item.label}: <span className="font-bold">+{formatVND(item.amount)}đ</span>
+                    </p>
+                  ))}
+                  {/* Triangle arrow pointing down toward ? button */}
+                  <div className="absolute right-3 top-full w-0 h-0 border-l-[8px] border-r-[8px] border-t-[8px] border-l-transparent border-r-transparent border-t-[#1b3a8c]" />
+                </div>
+              </>
             )}
           </div>
 
@@ -382,12 +530,21 @@ export default function Cashier() {
         {/* Bottom fixed area */}
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-gradient-to-t from-[#F5F3FF] via-[#F5F3FF] to-transparent px-4 pt-6 pb-8">
           <button
-            disabled={isInsufficient}
-            onClick={() => setShowSuccess(true)}
+            disabled={isInsufficient || isProcessing}
+            onClick={() => {
+              setShowFeeTooltip(false)
+              transition(() => setIsProcessing(true))
+              setTimeout(() => {
+                transition(() => {
+                  setIsProcessing(false)
+                  setShowSuccess(true)
+                })
+              }, 2400)
+            }}
             className={`w-full py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-all ${
               isInsufficient
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                : 'bg-primary-600 hover:bg-primary-700 active:scale-[0.98] text-white shadow-lg shadow-primary-200'
+                : 'bg-primary-600 hover:bg-primary-700 active:scale-[0.97] text-white shadow-lg shadow-primary-200'
             }`}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -403,45 +560,6 @@ export default function Cashier() {
           </p>
         </div>
 
-        {/* Fee breakdown modal */}
-        {showFeeModal && (
-          <div className="fixed inset-0 z-50 flex items-end justify-center">
-            <div
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-              onClick={() => setShowFeeModal(false)}
-            />
-            <div className="relative w-full max-w-[430px] bg-white rounded-t-3xl px-5 pt-5 pb-10 shadow-2xl">
-              <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
-              <h3 className="text-base font-bold text-slate-800 mb-4">Chi tiết phí</h3>
-              <div className="space-y-3">
-                {fees.items.map(item => (
-                  <div key={item.id} className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center mt-0.5 flex-shrink-0">
-                        <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-slate-600">{item.label}</span>
-                    </div>
-                    <span className="text-sm font-bold text-orange-500 flex-shrink-0">+{formatVND(item.amount)}đ</span>
-                  </div>
-                ))}
-                <div className="border-t border-slate-100 pt-3 flex justify-between">
-                  <span className="text-sm font-bold text-slate-700">Tổng phí</span>
-                  <span className="text-sm font-bold text-orange-500">+{formatVND(fees.total)}đ</span>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowFeeModal(false)}
-                className="mt-6 w-full py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-sm transition-colors"
-              >
-                Đóng
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )
