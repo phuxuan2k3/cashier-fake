@@ -94,24 +94,6 @@
         "amountRange": null,
         "orderTypes": null,
         "paymentMethods": [
-          "international_card"
-        ]
-      },
-      "enabled": true,
-      "fee": {
-        "displayLabel": "Phụ phí thẻ quốc tế (2%, tối thiểu 15.000đ)",
-        "min": 15000,
-        "type": "percentage_with_min",
-        "value": 2
-      },
-      "id": "international_card_surcharge",
-      "name": "Phụ phí thẻ quốc tế"
-    },
-    {
-      "conditions": {
-        "amountRange": null,
-        "orderTypes": null,
-        "paymentMethods": [
           "bank_msb",
           "bank_acb"
         ]
