@@ -1,0 +1,65 @@
+{
+  "version": "1.0",
+  "description": "Catalog tham chiếu (read-only) liệt kê TẤT CẢ orderTypes và paymentMethods hợp lệ của cashier-fake. File này KHÔNG được import vào code, chỉ dùng để agent biết đầy đủ các giá trị hợp lệ và viết rule trong fees.json cho đúng (đúng id, đúng category, đúng paymentMethod). Nguồn sự thật của UI vẫn là src/data/orderTypes.js và src/data/paymentMethods.js — khi 2 file đó thay đổi thì cập nhật lại catalog này cho khớp.",
+  "orderCategories": [
+    { "id": "phone", "name": "Điện thoại", "icon": "📱" },
+    { "id": "bill", "name": "Hóa đơn", "icon": "🧾" },
+    { "id": "airline", "name": "Vé máy bay", "icon": "✈️" },
+    { "id": "game", "name": "Game", "icon": "🎮" },
+    { "id": "tax", "name": "Thuế", "icon": "🏛️" },
+    { "id": "insurance", "name": "Bảo hiểm", "icon": "🛡️" }
+  ],
+  "orderTypes": [
+    { "id": "phone_topup_mobifone", "name": "Nạp thẻ Mobifone", "category": "phone" },
+    { "id": "phone_topup_viettel", "name": "Nạp thẻ Viettel", "category": "phone" },
+    { "id": "phone_topup_vinaphone", "name": "Nạp tiền Vinaphone", "category": "phone" },
+    { "id": "phone_topup_gmobile", "name": "Nạp thẻ Gmobile", "category": "phone" },
+    { "id": "phone_topup_reddi", "name": "Nạp thẻ Reddi", "category": "phone" },
+
+    { "id": "bill_electricity_evn", "name": "Hóa đơn điện EVN", "category": "bill" },
+    { "id": "bill_electricity_vinh_long", "name": "Hóa đơn điện Vĩnh Long", "category": "bill" },
+    { "id": "bill_water_sawaco", "name": "Hóa đơn nước SAWACO", "category": "bill" },
+    { "id": "bill_internet_vnpt", "name": "Hóa đơn internet VNPT", "category": "bill" },
+    { "id": "bill_internet_fpt", "name": "Hóa đơn internet FPT", "category": "bill" },
+    { "id": "bill_tv_vtvcab", "name": "Hóa đơn TV VTVcab", "category": "bill" },
+
+    { "id": "airline_vietnam_airlines", "name": "Vé Vietnam Airlines", "category": "airline" },
+    { "id": "airline_vietjet", "name": "Vé VietJet Air", "category": "airline" },
+    { "id": "airline_bamboo", "name": "Vé Bamboo Airways", "category": "airline" },
+    { "id": "airline_pacific", "name": "Vé Pacific Airlines", "category": "airline" },
+
+    { "id": "game_garena", "name": "Nạp thẻ Garena", "category": "game" },
+    { "id": "game_vcoin", "name": "Nạp VCoin", "category": "game" },
+    { "id": "game_steam", "name": "Nạp Steam Wallet", "category": "game" },
+
+    { "id": "tax_personal_income", "name": "Nộp thuế TNCN", "category": "tax" },
+    { "id": "tax_vat", "name": "Nộp thuế GTGT", "category": "tax" },
+    { "id": "tax_corporate", "name": "Nộp thuế TNDN", "category": "tax" },
+
+    { "id": "insurance_bic", "name": "Bảo hiểm BIC", "category": "insurance" },
+    { "id": "insurance_pvi", "name": "Bảo hiểm PVI", "category": "insurance" },
+    { "id": "insurance_bao_viet", "name": "Bảo hiểm Bảo Việt", "category": "insurance" }
+  ],
+  "paymentMethods": [
+    { "id": "wallet_tui", "name": "Túi", "type": "wallet", "description": "Ví điện tử" },
+    { "id": "prepaid_account", "name": "Tài khoản trả trước", "type": "wallet", "description": "Tài khoản nội bộ" },
+    { "id": "bank_msb", "name": "Ngân hàng MSB", "type": "bank", "description": "Maritime Bank" },
+    { "id": "bank_acb", "name": "Ngân hàng ACB", "type": "bank", "description": "Asia Commercial Bank" },
+    { "id": "vietqr", "name": "VietQR", "type": "qr", "description": "Quét mã QR" },
+    { "id": "domestic_card", "name": "Thẻ nội địa", "type": "card", "description": "Thẻ ATM nội địa" },
+    { "id": "international_card", "name": "Thẻ quốc tế", "type": "card", "description": "Visa / Mastercard / JCB" }
+  ],
+  "paymentMethodTypes": {
+    "wallet": "Ví / tài khoản nội bộ trả trước",
+    "bank": "Tài khoản ngân hàng liên kết",
+    "qr": "Thanh toán bằng quét mã QR",
+    "card": "Thẻ thanh toán (nội địa hoặc quốc tế)"
+  },
+  "ruleAuthoringNotes": {
+    "purpose": "Dùng các id ở trên khi viết conditions.orderTypes và conditions.paymentMethods trong fees.json.",
+    "conditions.orderTypes": "Mảng các orderTypes.id, hoặc null nếu rule áp dụng cho mọi loại đơn.",
+    "conditions.paymentMethods": "Mảng các paymentMethods.id, hoặc null nếu rule áp dụng cho mọi phương thức.",
+    "conditions.amountRange": "{ min, max } theo VNĐ, mỗi đầu có thể null. null toàn bộ nghĩa là không giới hạn số tiền.",
+    "matching": "Một rule khớp khi TẤT CẢ điều kiện non-null đều thỏa. Mọi rule khớp sẽ được cộng phí lại (xem fees.json)."
+  }
+}
