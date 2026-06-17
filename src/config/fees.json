@@ -91,24 +91,6 @@
     },
     {
       "conditions": {
-        "amountRange": null,
-        "orderTypes": null,
-        "paymentMethods": [
-          "bank_msb",
-          "bank_acb"
-        ]
-      },
-      "enabled": true,
-      "fee": {
-        "displayLabel": "Phí giao dịch ngân hàng (5.000đ)",
-        "type": "flat",
-        "value": 5000
-      },
-      "id": "bank_transfer_fee",
-      "name": "Phí giao dịch ngân hàng"
-    },
-    {
-      "conditions": {
         "amountRange": {
           "max": null,
           "min": 10000000
