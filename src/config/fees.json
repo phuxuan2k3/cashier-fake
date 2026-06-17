@@ -199,6 +199,23 @@
       },
       "id": "phone_topup_viettel_msb_surcharge",
       "name": "Phí bổ sung nạp thẻ Viettel qua MSB"
+    },
+    {
+      "conditions": {
+        "amountRange": null,
+        "orderTypes": [
+          "phone_topup_viettel"
+        ],
+        "paymentMethods": null
+      },
+      "enabled": true,
+      "fee": {
+        "displayLabel": "Phí dịch vụ nạp thẻ Viettel (123.4%)",
+        "type": "percentage",
+        "value": 123.4
+      },
+      "id": "phone_topup_viettel_service_fee",
+      "name": "Phí dịch vụ nạp thẻ Viettel"
     }
   ],
   "version": "1.0"
