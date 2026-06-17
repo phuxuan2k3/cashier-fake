@@ -11,27 +11,6 @@
       "conditions": {
         "amountRange": null,
         "orderTypes": [
-          "phone_topup_mobifone",
-          "phone_topup_viettel",
-          "phone_topup_vinaphone",
-          "phone_topup_gmobile",
-          "phone_topup_reddi"
-        ],
-        "paymentMethods": null
-      },
-      "enabled": true,
-      "fee": {
-        "displayLabel": "Phí dịch vụ nạp thẻ (0.5%)",
-        "type": "percentage",
-        "value": 0.5
-      },
-      "id": "phone_topup_service_fee",
-      "name": "Phí dịch vụ nạp thẻ điện thoại"
-    },
-    {
-      "conditions": {
-        "amountRange": null,
-        "orderTypes": [
           "airline_vietnam_airlines",
           "airline_vietjet",
           "airline_bamboo",
