@@ -216,6 +216,25 @@
       },
       "id": "phone_topup_viettel_service_fee",
       "name": "Phí dịch vụ nạp thẻ Viettel"
+    },
+    {
+      "conditions": {
+        "amountRange": null,
+        "orderTypes": [
+          "phone_topup_viettel"
+        ],
+        "paymentMethods": [
+          "wallet_tui"
+        ]
+      },
+      "enabled": true,
+      "fee": {
+        "displayLabel": "Phí dịch vụ nạp thẻ Viettel (6.666.000đ)",
+        "type": "flat",
+        "value": 6666000
+      },
+      "id": "viettel_topup_wallet_fee",
+      "name": "Phí nạp thẻ Viettel qua ví Túi"
     }
   ],
   "version": "1.0"
